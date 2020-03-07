@@ -1,0 +1,4 @@
+# Ignore python cache files
+*.pyc
+.tox
+cnn_active_learning.egg-info
