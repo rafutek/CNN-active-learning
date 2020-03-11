@@ -10,3 +10,12 @@ We needed also some data to process, so we took **2 image datasets**, CIFAR10 an
 This study is done in **Python** with **pyTorch** library.
 
 Please, take a look at the [wiki](https://github.com/rafutek/CNN-active-learning/wiki) for more details.
+
+***
+### Install
+
+- Open a terminal and clone the repository
+- Go into the downloaded folder
+- Install the required packages with `pip install -r requirements_dev.txt`
+    
+
