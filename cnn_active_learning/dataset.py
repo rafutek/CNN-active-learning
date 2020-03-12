@@ -4,55 +4,63 @@ import torchvision.transforms as transforms
 import pickle
 import subprocess
 import numpy as np
+from torch.utils.data import Dataset
 
-# class model
-class MyDataset(object):
-
+class ModelDataset(Dataset):
     def __init__(self):
-        pass
+        self.download()
+        self.train_data, self.labels, self.label_names = self.get_train_data()
+        self.test_data, self.test_labels = self.get_test_data()
+
+    def __len__(self):
+        return len(self.train_data)
+
+    def __getitem__(self, index):
+        return self.train_data[index], self.labels[index], self.label_names[self.labels[index]]
 
     def download(self):
         pass
-    
-    def get_data(self):
+
+    def get_train_data(self):
         pass
 
-class CIFAR10(MyDataset):
+    def get_test_data(self):
+        pass
 
-    @staticmethod
-    def unpickle(file):
-        with open(file, 'rb') as fo:
-            dic = pickle.load(fo, encoding='latin1')
-        return dic
 
-    # Call a script to download CIFAR10 dataset
-    @staticmethod
-    def download():
-        subprocess.call(["./dl-CIFAR10.sh"])
+
+class CIFAR10(ModelDataset):
+    data_dir = './data/cifar-10-batches-py/'
     
-    @staticmethod 
-    def get_data():
+    def download(self):
+        subprocess.call(['./dl-CIFAR10.sh'])
 
-        data_dir = "./data/cifar-10-batches-py/"
-        filenames = ["data_batch_1","data_batch_2","data_batch_3","data_batch_4","data_batch_5"]
+    def get_train_data(self):
+
+        filenames = ['data_batch_1','data_batch_2','data_batch_3','data_batch_4','data_batch_5']
         data = None
-        labels = None
         for filename in filenames:
-            filepath = data_dir + filename
-            data_dic = CIFAR10.unpickle(filepath)
+            filepath = self.data_dir + filename
+            data_dic = self.unpickle(filepath)
             if data is None:
-                #data = np.empty(data_dic['data'].shape, len(filenames))
                 data = data_dic['data']
                 labels = data_dic['labels']
-                print(len(data))
-                print(len(labels))
             else:
-
                 data = np.append(data, data_dic['data'], axis=0)
                 labels = np.append(labels, data_dic['labels'])
-                print(len(data))
 
-        label_dic = CIFAR10.unpickle('./data/cifar-10-batches-py/batches.meta')
+        label_dic = self.unpickle('./data/cifar-10-batches-py/batches.meta')
         label_names = label_dic['label_names']
         return data, labels, label_names
 
+    def unpickle(self, file):
+        with open(file, 'rb') as fo:
+            dic = pickle.load(fo, encoding='latin1')
+        return dic
+    
+    def get_test_data(self):
+        filepath = self.data_dir + 'test_batch'
+        test_dic = self.unpickle(filepath)
+        test_data = test_dic['data']
+        test_labels = test_dic['labels']
+        return test_data, test_labels
