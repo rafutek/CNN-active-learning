@@ -10,10 +10,8 @@ import torchvision
 
 data = CIFAR10Extractor()
 pool_samples, pool_labels = data.get_pool_data()
-print(pool_samples.shape)
 
-
-k=1000
+k=100
 idx_labeled_samples = torch.randint(size=(k,),high=len(pool_samples))
 
 dataManager = DataManager(data, idx_labeled_samples)
@@ -24,4 +22,5 @@ vgg = VggNet(num_classes=10)
 
 netTrainer = NetTrainer(model=vgg, data_manager=dataManager, loss_fn=nn.CrossEntropyLoss() , optimizer_factory=optimizer)
 
-netTrainer.train(10)
+netTrainer.train(1)
+netTrainer.evaluate_on_validation_set()

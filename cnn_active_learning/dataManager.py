@@ -19,8 +19,8 @@ class DataManager(object):
     class that yields dataloaders for train, test, and validation data
     """
 
-    def __init__(self, data : DataExtractor,
-                idx_labeled_samples):
+    def __init__(self, data : DataExtractor, idx_labeled_samples,
+            batch_size: int = 20):
         
         pool_samples, pool_labels = data.get_pool_data()
         test_samples, test_labels = data.get_test_data()
@@ -36,9 +36,9 @@ class DataManager(object):
         val_set = Dataset(val_samples, val_labels)
         test_set = Dataset(test_samples, test_labels)
         
-        self.train_loader = DataLoader(train_set, shuffle=True)
-        self.validation_loader = DataLoader(val_set, shuffle=True)
-        self.test_loader = DataLoader(test_set, shuffle=True)
+        self.train_loader = DataLoader(train_set, batch_size, shuffle=True)
+        self.validation_loader = DataLoader(val_set, batch_size, shuffle=True)
+        self.test_loader = DataLoader(test_set, batch_size, shuffle=True)
 
     def train_validation_split(self, pool_samples, pool_labels, idx_labeled_samples):
         train_samples = pool_samples[idx_labeled_samples]

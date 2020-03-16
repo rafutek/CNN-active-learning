@@ -39,7 +39,8 @@ class CIFAR10Extractor(DataExtractor):
         return dic
    
     def extract_pool_data(self):
-        filenames = ['data_batch_1','data_batch_2','data_batch_3','data_batch_4','data_batch_5']
+        filenames = ['data_batch_1'] # reduce data size for dev (faster)
+        # filenames = ['data_batch_1','data_batch_2','data_batch_3','data_batch_4','data_batch_5']
         init = False
         for filename in filenames:
             filepath = self.data_dir + filename
@@ -48,8 +49,8 @@ class CIFAR10Extractor(DataExtractor):
             labels = pool_dic['labels']
             if not init:
                 init = True
-                pool_samples = data
-                pool_labels = labels
+                pool_samples = np.array(data)
+                pool_labels = np.array(labels)
             else:
                 pool_samples = np.append(pool_samples, data, axis=0)
                 pool_labels = np.append(pool_labels, labels)

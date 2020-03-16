@@ -68,9 +68,6 @@ class VggNet(CNNBaseModel):
         Args:
             x: Tensor
         """
-        # x = x.reshape((1,3,32,32)).type(dtype=torch.float)
-        # print(x.size())
-        # print(x.type())
         x = self.conv_layers(x)
         x = x.view(x.size(0), -1) # Reshape feature maps
         x = self.classifier(x)

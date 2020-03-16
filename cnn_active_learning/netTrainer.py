@@ -62,6 +62,8 @@ class NetTrainer(object):
         Args:
             num_epochs: number times to train the model
         """
+        print('Training...')
+
         # Initialize metrics container
         self.metric_values['train_loss'] = []
         self.metric_values['train_acc'] = []
@@ -119,17 +121,18 @@ class NetTrainer(object):
         """
         function that evaluate the model on the validation set every epoch
         """
+        print('Evaluate on validation set...')
         # switch to eval mode so that layers like batchnorm's layers nor dropout's layers
         # works in eval mode instead of training mode
         self.model.eval()
 
         # Get validation data
-        val_loader = self.data_manager.get_validation_set()
+        val_loader = self.data_manager.get_validation_loader()
         validation_loss = 0.0
         validation_losses = []
         validation_accuracies = []
 
-        with torch.no_grad():
+        with torch.no_grad() and tqdm(range(len(val_loader))) as t:
             for j, val_data in enumerate(val_loader, 0):
                 # transfer tensors to the selected device
                 val_inputs, val_labels = val_data[0].to(self.device), val_data[1].to(self.device)
@@ -142,6 +145,8 @@ class NetTrainer(object):
                 validation_losses.append(loss.item())
                 validation_accuracies.append(self.accuracy(val_outputs, val_labels))
                 validation_loss += loss.item()
+
+                t.update()
 
         self.metric_values['val_loss'].append(np.mean(validation_losses))
         self.metric_values['val_acc'].append(np.mean(validation_accuracies))
@@ -172,7 +177,7 @@ class NetTrainer(object):
         :returns;
             Accuracy of the model on the test set
         """
-        test_loader = self.data_manager.get_test_set()
+        test_loader = self.data_manager.get_test_loader()
         accuracies = 0
         with torch.no_grad():
             for data in test_loader:

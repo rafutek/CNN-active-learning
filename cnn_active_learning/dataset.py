@@ -10,21 +10,16 @@ class Dataset(Dataset):
         else:
             raise AttributeError('samples and labels must be of the same length')
         self.transform = transforms.Compose([
-            # transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
-        
-        
 
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, index):
         sample, label = self.samples[index], self.labels[index]
-        # print('dataset av:',sample.shape)
         sample = torch.tensor(sample, dtype=torch.float)
         sample = self.transform(sample)
-        # print('dataset ap:',sample.size())
         return sample, label
 
 
