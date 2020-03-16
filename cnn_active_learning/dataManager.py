@@ -9,7 +9,7 @@ Other: Suggestions are welcome
 """
 
 from dataExtractor import DataExtractor
-import torch
+import numpy as np
 from dataset import Dataset
 from torch.utils.data import DataLoader
 
@@ -19,7 +19,8 @@ class DataManager(object):
     class that yields dataloaders for train, test, and validation data
     """
 
-    def __init__(self, data : DataExtractor, idx_labeled_samples,
+    def __init__(self, data : DataExtractor, 
+            idx_labeled_samples: np.array,
             batch_size: int = 20):
         
         pool_samples, pool_labels = data.get_pool_data()
@@ -41,19 +42,15 @@ class DataManager(object):
         self.test_loader = DataLoader(test_set, batch_size, shuffle=True)
 
     def train_validation_split(self, pool_samples, pool_labels, idx_labeled_samples):
-        train_samples = pool_samples[idx_labeled_samples]
-        train_labels = pool_labels[idx_labeled_samples]
-        
-        minusOne = torch.zeros(len(pool_samples)).fill_(-1).type(dtype=torch.long)
-        idx_samples = minusOne.clone()
-        idx_samples[idx_labeled_samples] = idx_labeled_samples.clone().detach()
-        
-        idx = torch.arange(len(pool_samples))
-        idx_val = torch.where(idx != idx_samples,idx, minusOne)
-        idx_val = idx_val[idx_val != -1]
-        
-        val_samples = pool_samples[idx_val]
-        val_labels = pool_labels[idx_val]
+        mask_train = np.zeros(len(pool_samples),dtype=bool)
+        mask_train[idx_labeled_samples] = True
+        train_samples = pool_samples[mask_train]
+        train_labels = pool_labels[mask_train]
+
+        mask_val = np.ones(len(pool_samples),dtype=bool)
+        mask_val[idx_labeled_samples] = False
+        val_samples = pool_samples[mask_val]
+        val_labels = pool_labels[mask_val]
 
         return train_samples, train_labels, val_samples, val_labels
 

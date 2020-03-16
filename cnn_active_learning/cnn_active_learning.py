@@ -12,10 +12,9 @@ data = CIFAR10Extractor()
 pool_samples, pool_labels = data.get_pool_data()
 
 k=100
-idx_labeled_samples = torch.randint(size=(k,),high=len(pool_samples))
+idx_labeled_samples = np.random.randint(len(pool_samples), size=k)
 
 dataManager = DataManager(data, idx_labeled_samples)
-
 
 optimizer = optimizer_setup(torch.optim.SGD, lr=0.001, momentum=0.9)
 vgg = VggNet(num_classes=10)
