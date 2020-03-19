@@ -1,15 +1,7 @@
 # -*- coding:utf-8 -*-
 
-"""
-University of Sherbrooke
-Date:
-Authors: Mamadou Mountagha BAH & Pierre-Marc Jodoin
-License: ...
-Other: Suggestions are welcome
-"""
-
-from dataExtractor import DataExtractor
 import numpy as np
+from dataExtractor import DataExtractor
 from dataset import Dataset
 from torch.utils.data import DataLoader
 
@@ -42,12 +34,14 @@ class DataManager(object):
         self.test_loader = DataLoader(test_set, batch_size, shuffle=True)
 
     def train_validation_split(self, pool_samples, pool_labels, idx_labeled_samples):
-        mask_train = np.zeros(len(pool_samples),dtype=bool)
+        pool_length = len(pool_samples)
+
+        mask_train = np.zeros(pool_length ,dtype=bool)
         mask_train[idx_labeled_samples] = True
         train_samples = pool_samples[mask_train]
         train_labels = pool_labels[mask_train]
 
-        mask_val = np.ones(len(pool_samples),dtype=bool)
+        mask_val = np.ones(pool_length,dtype=bool)
         mask_val[idx_labeled_samples] = False
         val_samples = pool_samples[mask_val]
         val_labels = pool_labels[mask_val]
