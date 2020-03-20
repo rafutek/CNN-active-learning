@@ -37,6 +37,12 @@ class VggNet(CNNBaseModel):
             nn.Dropout(0.5),
             nn.Linear(4096, num_classes),
         )
+        self.soft_classifier = nn.Sequential(
+            nn.Linear(512 , 4096),
+            nn.Linear(4096 , 1000),
+            nn.Linear(1000 , num_classes),
+            nn.Softmax(dim=1),
+        )
 
     @staticmethod
     def _make_vgg16_conv_layers(batch_norm=True):
@@ -70,5 +76,5 @@ class VggNet(CNNBaseModel):
         """
         x = self.conv_layers(x)
         x = x.view(x.size(0), -1) # Reshape feature maps
-        x = self.classifier(x)
+        x = self.soft_classifier(x)
         return x

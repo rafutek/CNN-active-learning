@@ -89,6 +89,7 @@ class NetTrainer(object):
 
                     # forward pass
                     train_outputs = self.model(train_inputs)
+
                     # computes loss using loss function loss_fn
                     loss = self.loss_fn(train_outputs, train_labels)
 
@@ -117,7 +118,7 @@ class NetTrainer(object):
         print("Finished training.")
 
 
-    def evaluate_on_validation_set(self):
+    def evaluate_on_validation_set(self, k:int):
         """
         function that evaluate the model on the validation set every epoch
         """
@@ -131,6 +132,7 @@ class NetTrainer(object):
         validation_loss = 0.0
         validation_losses = []
         validation_accuracies = []
+        maxprobas = None
 
         with torch.no_grad() and tqdm(range(len(val_loader))) as t:
             for j, val_data in enumerate(val_loader, 0):
@@ -139,13 +141,32 @@ class NetTrainer(object):
 
                 # forward pass
                 val_outputs = self.model(val_inputs)
-
+  
                 # compute loss function
                 loss = self.loss_fn(val_outputs, val_labels)
                 validation_losses.append(loss.item())
-                validation_accuracies.append(self.accuracy(val_outputs, val_labels))
+                acc = self.accuracy(val_outputs, val_labels)
+                validation_accuracies.append(acc)
                 validation_loss += loss.item()
+                
+                maxprobability, _ = val_outputs.max(dim=1)
+                batch_size = len(maxprobability)
+                image_idx = torch.arange(batch_size)
+                # print(image_idx)
+                image_idx += k
+                # print(image_idx)
+                image_idx += batch_size*j # index in the pool
+                # print(image_idx, '\n')
+                batch_maxprobas = np.array([maxprobability.tolist(), image_idx.tolist()])
+                if maxprobas is None:
+                    maxprobas = batch_maxprobas
+                else:
+                    maxprobas = np.concatenate((maxprobas, batch_maxprobas), axis=1)
 
+                if maxprobas.shape[1] > k:
+                    sort_idx = maxprobas[0,:].argsort()
+                    maxprobas =  maxprobas[:,sort_idx] # sort maximums
+                    maxprobas = maxprobas[:,:k] # keep k minimal maximums
                 t.update()
 
         self.metric_values['val_loss'].append(np.mean(validation_losses))
@@ -157,6 +178,8 @@ class NetTrainer(object):
         # switch back to train mode
         self.model.train()
 
+        return maxprobas
+
     def accuracy(self, outputs, labels):
         """
         Computes the accuracy of the model
@@ -166,7 +189,6 @@ class NetTrainer(object):
         Returns:
             Accuracy of the model
         """
-
         predicted = outputs.argmax(dim=1)
         correct = (predicted == labels).sum().item()
         return correct / labels.size(0)
