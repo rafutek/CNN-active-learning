@@ -1,6 +1,6 @@
 #!/bin/sh
 DATA_DIR="./data"
-UNZIP_NAME="cifar-100-batches-py"
+UNZIP_NAME="cifar-100-python"
 ARCHIVE_NAME="cifar100.tar.gz"
 DATASET_URL=https://www.cs.toronto.edu/\~kriz/cifar-100-python.tar.gz
 

@@ -75,7 +75,8 @@ class CIFAR10Extractor(DataExtractor):
         return test_data, test_labels
 
     def extract_label_names(self):
-        label_dic = self.unpickle('./data/cifar-10-batches-py/batches.meta')
+        filepath = self.data_dir + 'batches.meta'
+        label_dic = self.unpickle(filepath)
         label_names = label_dic['label_names']
         return label_names
 
@@ -83,7 +84,7 @@ class CIFAR10Extractor(DataExtractor):
 
 
 class CIFAR100Extractor(DataExtractor):
-    data_dir = './data/cifar-100-batches-py/'
+    data_dir = './data/cifar-100-python/'
 
     def download(self):
         subprocess.call(['./dl-CIFAR100.sh'])
@@ -94,14 +95,14 @@ class CIFAR100Extractor(DataExtractor):
         return dic
 
     def extract_pool_data(self):
-        filenames = ['data_batch_1']  # reduce data size for dev (faster)
-        # filenames = ['data_batch_1','data_batch_2','data_batch_3','data_batch_4','data_batch_5']
+        filenames = ['train']
         init = False
         for filename in filenames:
             filepath = self.data_dir + filename
             pool_dic = self.unpickle(filepath)
+            print(pool_dic.keys())
             data = pool_dic['data']
-            labels = pool_dic['labels']
+            labels = pool_dic['labels'] # ERR: il faut voir quels labels on utilise
             if not init:
                 init = True
                 pool_samples = np.array(data)
@@ -121,13 +122,14 @@ class CIFAR100Extractor(DataExtractor):
         plt.show()
 
     def extract_test_data(self):
-        filepath = self.data_dir + 'test_batch'
+        filepath = self.data_dir + 'test'
         test_dic = self.unpickle(filepath)
         test_data = test_dic['data']
         test_labels = test_dic['labels']
         return test_data, test_labels
 
     def extract_label_names(self):
-        label_dic = self.unpickle('./data/cifar-100-batches-py/batches.meta')
+        filepath = self.data_dir + 'meta'
+        label_dic = self.unpickle(filepath)
         label_names = label_dic['label_names']
         return label_names
