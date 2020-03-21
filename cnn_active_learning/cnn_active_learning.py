@@ -10,9 +10,12 @@ import torchvision
 
 data = CIFAR10Extractor()
 
+num_learnings = 2
 k=50
 idx_labeled_samples = np.arange(k)
 
+print(range(num_learning))
+return
 dataManager = DataManager(data=data, \
         idx_labeled_samples=idx_labeled_samples, \
         batch_size=1)
