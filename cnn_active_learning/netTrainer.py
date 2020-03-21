@@ -151,12 +151,7 @@ class NetTrainer(object):
                 
                 maxprobability, _ = val_outputs.max(dim=1)
                 batch_size = len(maxprobability)
-                image_idx = torch.arange(batch_size)
-                # print(image_idx)
-                image_idx += k
-                # print(image_idx)
-                image_idx += batch_size*j # index in the pool
-                # print(image_idx, '\n')
+                image_idx = torch.arange(batch_size) + k + batch_size*j # samples index in the pool
                 batch_maxprobas = np.array([maxprobability.tolist(), image_idx.tolist()])
                 if maxprobas is None:
                     maxprobas = batch_maxprobas
