@@ -14,8 +14,8 @@ import numpy as np
 from dataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
-# from utils import mean_dice, convert_mask_to_rgb_image
 import matplotlib.pyplot as plt
+from selector import UncertaintySelector
 
 
 class NetTrainer(object):
@@ -133,6 +133,8 @@ class NetTrainer(object):
         validation_losses = []
         validation_accuracies = []
         maxprobas = None
+        selection = None
+        selector = UncertaintySelector()
 
         with torch.no_grad() and tqdm(range(len(val_loader))) as t:
             for j, val_data in enumerate(val_loader, 0):
@@ -148,20 +150,10 @@ class NetTrainer(object):
                 acc = self.accuracy(val_outputs, val_labels)
                 validation_accuracies.append(acc)
                 validation_loss += loss.item()
-                
-                maxprobability, _ = val_outputs.max(dim=1)
-                batch_size = len(maxprobability)
-                image_idx = torch.arange(batch_size) + k + batch_size*j # samples index in the pool
-                batch_maxprobas = np.array([maxprobability.tolist(), image_idx.tolist()])
-                if maxprobas is None:
-                    maxprobas = batch_maxprobas
-                else:
-                    maxprobas = np.concatenate((maxprobas, batch_maxprobas), axis=1)
+               
+                # select indexes for next training
+                selection = selector.select(val_outputs, j, k, selection)
 
-                if maxprobas.shape[1] > k:
-                    sort_idx = maxprobas[0,:].argsort()
-                    maxprobas =  maxprobas[:,sort_idx] # sort maximums
-                    maxprobas = maxprobas[:,:k] # keep k minimal maximums
                 t.update()
 
         self.metric_values['val_loss'].append(np.mean(validation_losses))
@@ -173,7 +165,7 @@ class NetTrainer(object):
         # switch back to train mode
         self.model.train()
 
-        return maxprobas
+        return selector.indexes(selection)
 
     def accuracy(self, outputs, labels):
         """
