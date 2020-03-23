@@ -8,5 +8,6 @@ pytest-runner
 curl
 torch
 torchvision
+torchaudio
 matplotlib
 tqdm
