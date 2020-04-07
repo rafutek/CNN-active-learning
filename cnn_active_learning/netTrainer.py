@@ -186,14 +186,19 @@ class NetTrainer(object):
         :returns;
             Accuracy of the model on the test set
         """
+        print('Evaluate on test set...')
         test_loader = self.data_manager.get_test_loader()
         accuracies = 0
-        with torch.no_grad():
-            for data in test_loader:
+        with torch.no_grad() and tqdm(range(len(test_loader))) as t:
+            for i, data in enumerate(test_loader, 0):
                 test_inputs, test_labels = data[0].to(self.device), data[1].to(self.device)
                 test_outputs = self.model(test_inputs)
                 accuracies += self.accuracy(test_outputs, test_labels)
-        print("Accuracy of the network on the test set: {:05.3f} %".format(100 * accuracies / len(test_loader)))
+                t.update()
+
+        percent_accuracy = 100 * accuracies / len(test_loader)
+        print("Accuracy of the network on the test set: {:05.3f} %".format(percent_accuracy))
+        return percent_accuracy
 
     def plot_metrics(self):
         """
