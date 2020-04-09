@@ -1,6 +1,7 @@
 from networks.VggNet import VggNet
-from dataExtractor import CIFAR10Extractor 
+from dataExtractor import CIFAR10Extractor, CIFAR100Extractor 
 from dataManager import DataManager
+from selector import RandomSelector, UncertaintySelector, MarginSamplingSelector
 from netTrainer import optimizer_setup, NetTrainer
 import numpy as np
 from torch.optim import SGD 
@@ -35,7 +36,6 @@ def active_learning(network, dataset, method, k, num_trainings,
     
     for num_training in range(num_trainings):
         print("\nActive learning loop "+str(num_training+1)+"/"+str(num_trainings))
-        # print('\nIndexes of samples for training:\n',idx_labeled_samples)
         dataManager = DataManager(data=data, \
             idx_labeled_samples=idx_labeled_samples, \
             batch_size=batch_size)
@@ -45,15 +45,15 @@ def active_learning(network, dataset, method, k, num_trainings,
     
         netTrainer = NetTrainer(model=vgg, \
                 data_manager=dataManager, \
+                selection_method=selection_method, \
                loss_fn=nn.CrossEntropyLoss() , \
                optimizer_factory=optimizer)
     
         netTrainer.train(num_epochs)
         selected_samples_idx = netTrainer.evaluate_on_validation_set(k)
         add_to_train_idx = selected_samples_idx
-        print('k indexes of lower confidence classification:\n',add_to_train_idx)
         idx_labeled_samples = np.concatenate((idx_labeled_samples, add_to_train_idx))
-    
+        print("Added the selected samples to the new training set")
         accuracy = netTrainer.evaluate_on_test_set()
         accuracies.append(accuracy)
     
@@ -73,6 +73,8 @@ def getData(dataset):
 
 def getSelectionMethod(method):
     if method == "random":
-        return None
+        return RandomSelector
     elif method == "uncertainty_sampling":
-        return None
+        return UncertaintySelector
+    elif method == "margin_sampling":
+        return MarginSamplingSelector

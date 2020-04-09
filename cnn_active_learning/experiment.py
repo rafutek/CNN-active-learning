@@ -60,9 +60,9 @@ def check_full_list_arg(arg, choices=None):
     return arg_list
 
 if __name__ == "__main__":
-    model_choices = ['VggNet','ResNeXt']
-    dataset_choices = ['cifar10','cifar100']
-    methods_choices = ['random','uncertainty_sampling']
+    model_choices = ['VggNet','ResNeXt','SENet']
+    dataset_choices = ['cifar10','cifar100','audioset']
+    methods_choices = ['random','uncertainty_sampling','margin_sampling']
     order_choices = ['model','dataset','method', 'k']
 
     args = argument_parser(os.path.basename(__file__), \
@@ -93,12 +93,11 @@ if __name__ == "__main__":
                     if k not in dic_results[model][dataset][method]:
                         dic_results[model][dataset][method][k]  = {}
 
-                    # accuracies = active_learning(model, dataset,
-                    #         method, k, num_trainings,
-                    #         batch_size, num_epochs, learning_rate)
+                    accuracies = active_learning(model, dataset,
+                            method, k, num_trainings,
+                            batch_size, num_epochs, learning_rate)
                     
-                    # dic_results[model][dataset][method][k] = accuracies
-                    dic_results[model][dataset][method][k] = [10,19,int(k),57,69]
+                    dic_results[model][dataset][method][k] = accuracies
 
     res = Results(dic_results, models, datasets, methods, Ks)
     res.plot_results(order, split_level)

@@ -10,6 +10,10 @@ ARCHIVE_FEATURES_NAME="features.tar.gz"
 FEATURES_URL_US=storage.googleapis.com/us_audioset/youtube_corpus/v1/features/features.tar.gz
 FEATURES_URL_EU=storage.googleapis.com/us_audioset/youtube_corpus/v1/features/features.tar.gz
 
+# Create data directory if not present
+[ ! -d "${DATA_DIR}" ] && mkdir "${DATA_DIR}"
+
+# Download dataset archive and unzip it
 if [ ! -d "${DATA_DIR}/${DATA_UNZIP_NAME}" ]; then
     if [ ! -f "${DATA_DIR}/${ARCHIVE_DATA_NAME}" ]; then
         echo "Downloading audioset dataset..."

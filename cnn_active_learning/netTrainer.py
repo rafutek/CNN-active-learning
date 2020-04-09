@@ -15,7 +15,7 @@ from dataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from selector import UncertaintySelector, MarginSamplingSelector
+from selector import Selector, UncertaintySelector, MarginSamplingSelector
 
 
 class NetTrainer(object):
@@ -25,6 +25,7 @@ class NetTrainer(object):
 
     def __init__(self, model,
                  data_manager: DataManager,
+                 selection_method: Selector, 
                  loss_fn: torch.nn.Module,
                  optimizer_factory: Callable[[torch.nn.Module], torch.optim.Optimizer],
                  batch_size=1,
@@ -49,6 +50,7 @@ class NetTrainer(object):
         self.device = torch.device(device_name)
         
         self.data_manager = data_manager
+        self.selection_method = selection_method
         self.loss_fn = loss_fn
         self.model = model
         self.optimizer = optimizer_factory(self.model)
@@ -134,7 +136,6 @@ class NetTrainer(object):
         validation_accuracies = []
         maxprobas = None
         selection = None
-        selector = MarginSamplingSelector() #UncertaintySelector()
 
         with torch.no_grad() and tqdm(range(len(val_loader))) as t:
             for j, val_data in enumerate(val_loader, 0):
@@ -152,7 +153,7 @@ class NetTrainer(object):
                 validation_loss += loss.item()
                
                 # select indexes for next training
-                selection = selector.select(val_outputs, j, k, selection)
+                selection = self.selection_method.select(val_outputs, j, k, selection)
 
                 t.update()
 
@@ -165,7 +166,7 @@ class NetTrainer(object):
         # switch back to train mode
         self.model.train()
 
-        return selector.indexes(selection)
+        return self.selection_method.indexes(selection)
 
     def accuracy(self, outputs, labels):
         """
@@ -199,99 +200,6 @@ class NetTrainer(object):
         percent_accuracy = round(100 * accuracies / len(test_loader), 3)
         print("Accuracy of the network on the test set: "+ str(percent_accuracy))
         return percent_accuracy
-
-    def plot_metrics(self):
-        """
-        Function that plots train and validation losses and accuracies after training phase
-        """
-        epochs = range(1, len(self.metric_values['train_loss']) + 1)
-
-        f = plt.figure(figsize=(10, 5))
-        ax1 = f.add_subplot(121)
-        ax2 = f.add_subplot(122)
-
-        # loss plot
-        ax1.plot(epochs, self.metric_values['train_loss'], '-o', label='Training loss')
-        ax1.plot(epochs, self.metric_values['val_loss'], '-o', label='Validation loss')
-        ax1.set_title('Training and validation loss')
-        ax1.set_xlabel('Epochs')
-        ax1.set_ylabel('Loss')
-        ax1.legend()
-
-        # accuracy plot
-        ax2.plot(epochs, self.metric_values['train_acc'], '-o', label='Training accuracy')
-        ax2.plot(epochs, self.metric_values['val_acc'], '-o', label='Validation accuracy')
-        ax2.set_title('Training and validation accuracy')
-        ax2.set_xlabel('Epochs')
-        ax2.set_ylabel('accuracy')
-        ax2.legend()
-        f.savefig('fig1.png')
-        plt.show()
-
-    def plot_image_mask_prediction(self):
-        """
-        Function that plots an image its corresponding ground truth and the predicted mask
-        """
-        # pick randomly an image and its corresponding gt into test_set
-        img, gt = self.data_manager.get_random_sample_from_test_set()
-        # convert the ground truth to a rgb image
-        gt = convert_mask_to_rgb_image(gt)
-        # use the model to predict the segmented image
-        # Since the model expect a 4D we need to add the batch dim in order to get the 4D
-        img = np.expand_dims(img, axis=0)
-        # convert image to Tensor
-        img = torch.from_numpy(img)
-        img = img.to(self.device)
-        prediction = self.model(img)
-        # delete the batch dimension
-        prediction = np.squeeze(prediction)
-        # convert prediction to numpy array
-        # take into account if model is trained on cpu or gpu
-        if self.use_cuda and torch.cuda.is_available():
-            prediction = prediction.detach().cpu().numpy()
-        else:
-            prediction = prediction.detach().numpy()
-        # from one_hot vector to categorical
-        prediction = np.argmax(prediction, axis=0)
-        # convert the predicted mask to rgb image
-        prediction = convert_mask_to_rgb_image(prediction)
-        # remove the batch dim and the channel dim of img
-        img = np.squeeze(np.squeeze(img))
-        # convert img to a numpy array
-        if self.use_cuda and torch.cuda.is_available():
-            img = img.cpu().numpy()
-        else:
-            img = img.numpy()
-
-        # plot the image
-        f = plt.figure(figsize=(10, 10))
-        ax1 = f.add_subplot(221)
-        ax1.imshow(img)
-        ax1.set_title('image')
-        ax1.axis('off')
-
-        # plot the ground truth
-        ax2 = f.add_subplot(222)
-        ax2.imshow(gt.astype('uint8'))
-        ax2.axis('off')
-        ax2.set_title('ground truth')
-
-        # plot the image
-        ax3 = f.add_subplot(223)
-        ax3.imshow(img)
-        ax3.set_title('image')
-        ax3.axis('off')
-
-        # plot the predicted mask
-        ax4 = f.add_subplot(224)
-        ax4.imshow(prediction.astype('uint8'))
-        ax4.set_title('predicted segmentation')
-        ax4.axis('off')
-
-        # Save as a png image
-        f.savefig('fig2.png')
-        # show image
-        plt.show()
 
 
 def optimizer_setup(optimizer_class: Type[torch.optim.Optimizer], **hyperparameters) -> \

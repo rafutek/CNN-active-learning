@@ -4,6 +4,10 @@ UNZIP_NAME="cifar-100-python"
 ARCHIVE_NAME="cifar100.tar.gz"
 DATASET_URL=https://www.cs.toronto.edu/\~kriz/cifar-100-python.tar.gz
 
+# Create data directory if not present
+[ ! -d "${DATA_DIR}" ] && mkdir "${DATA_DIR}"
+
+# Download dataset archive and unzip it
 if [ ! -d "${DATA_DIR}/${UNZIP_NAME}" ]; then
     if [ ! -f "${DATA_DIR}/${ARCHIVE_NAME}" ]; then
         echo "Downloading CIFAR100 dataset..."
