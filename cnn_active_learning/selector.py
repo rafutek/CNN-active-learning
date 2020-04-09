@@ -45,3 +45,32 @@ class UncertaintySelector(Selector):
     def indexes(selection):
         return selection[1,:].astype(int)
 
+
+class MarginSamplingSelector(Selector):
+    @staticmethod
+    def select(network_output, num_loop, k, selection):
+        batch_size = len(network_output)
+        image_idx = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
+
+        sorted_network_output = network_output.sort()
+        maxprobability1 = sorted_network_output[0]
+        maxprobability2 = sorted_network_output[1]
+
+        margin_sampling = maxprobability1 - maxprobability2
+
+        batch_maxprobas = np.array([margin_sampling.tolist(), image_idx.tolist()])
+        if selection is None:
+            selection = batch_maxprobas
+        else:
+            selection = np.concatenate((selection, batch_maxprobas), axis=1)
+
+        if selection.shape[1] > k:
+            sort_idx = selection[0,:].argsort()
+            selection =  selection[:,sort_idx] # sort maximums
+            selection = selection[:,:k] # keep k minimal maximums
+        return selection
+
+    @staticmethod
+    def indexes(selection):
+        return selection[1,:].astype(int)
+
