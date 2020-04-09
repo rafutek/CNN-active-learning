@@ -15,7 +15,7 @@ from dataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from selector import UncertaintySelector
+from selector import UncertaintySelector, MarginSamplingSelector
 
 
 class NetTrainer(object):
@@ -134,7 +134,7 @@ class NetTrainer(object):
         validation_accuracies = []
         maxprobas = None
         selection = None
-        selector = UncertaintySelector()
+        selector = MarginSamplingSelector() #UncertaintySelector()
 
         with torch.no_grad() and tqdm(range(len(val_loader))) as t:
             for j, val_data in enumerate(val_loader, 0):

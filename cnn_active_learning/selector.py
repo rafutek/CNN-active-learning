@@ -53,8 +53,8 @@ class MarginSamplingSelector(Selector):
         image_idx = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
 
         sorted_network_output = network_output.sort()
-        maxprobability1, _ = sorted_network_output[0]
-        maxprobability2, _ = sorted_network_output[1]
+        maxprobability1 = sorted_network_output[0]
+        maxprobability2 = sorted_network_output[1]
 
         margin_sampling = maxprobability1 - maxprobability2
 
@@ -70,5 +70,7 @@ class MarginSamplingSelector(Selector):
             selection = selection[:,:k] # keep k minimal maximums
         return selection
 
-
+    @staticmethod
+    def indexes(selection):
+        return selection[1,:].astype(int)
 
