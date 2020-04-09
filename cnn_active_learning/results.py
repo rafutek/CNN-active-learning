@@ -40,12 +40,14 @@ class Results(object):
 
     def check_order(self, order:list):
         if not all(item in order for item in self.default_order):
-            raise ValueError("Order "+str(order)+" must contain values of "+str(self.default_order))
+            raise ValueError("Order "+str(order)+" must contain "
+                            "values of "+str(self.default_order))
 
 
     def check_splitlevel(self, order:list, split_level:int):
         if split_level > len(order):
-            raise ValueError("Split level "+str(split_level)+" must be less than "+str(len(order)))
+            raise ValueError("Split level "+str(split_level)+" must "
+                            "be less than "+str(len(order)))
 
     def rearrange_results(self, order:list):
         new_results = {}
