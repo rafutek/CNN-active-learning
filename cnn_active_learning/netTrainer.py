@@ -196,8 +196,8 @@ class NetTrainer(object):
                 accuracies += self.accuracy(test_outputs, test_labels)
                 t.update()
 
-        percent_accuracy = 100 * accuracies / len(test_loader)
-        print("Accuracy of the network on the test set: {:05.3f} %".format(percent_accuracy))
+        percent_accuracy = round(100 * accuracies / len(test_loader), 3)
+        print("Accuracy of the network on the test set: "+ str(percent_accuracy))
         return percent_accuracy
 
     def plot_metrics(self):

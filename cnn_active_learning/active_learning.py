@@ -34,7 +34,8 @@ def active_learning(network, dataset, method, k, num_trainings,
     accuracies = []
     
     for num_training in range(num_trainings):
-        print('\nIndexes of samples for training:\n',idx_labeled_samples)
+        print("\nActive learning loop "+str(num_training+1)+"/"+str(num_trainings))
+        # print('\nIndexes of samples for training:\n',idx_labeled_samples)
         dataManager = DataManager(data=data, \
             idx_labeled_samples=idx_labeled_samples, \
             batch_size=batch_size)
@@ -55,7 +56,8 @@ def active_learning(network, dataset, method, k, num_trainings,
     
         accuracy = netTrainer.evaluate_on_test_set()
         accuracies.append(accuracy)
-        return accuracies
+    
+    return accuracies
 
 def getModel(model:str):
     if model == "VggNet":

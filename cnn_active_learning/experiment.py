@@ -2,7 +2,8 @@
 
 import os
 import argparse
-from train import *
+from active_learning import *
+from results import Results
 
 def argument_parser(script_name, model_choices, dataset_choices, method_choices):
     """
@@ -55,22 +56,27 @@ if __name__ == "__main__":
     num_epochs = args.num_epochs
     learning_rate = args.lr
 
-    d = {}
+    dic_results = {}
     for model in models:
-        if model not in d:
-            d[model] = {}
+        if model not in dic_results:
+            dic_results[model] = {}
         for dataset in datasets:
-            if dataset not in d[model]:
-                d[model][dataset] = {}
+            if dataset not in dic_results[model]:
+                dic_results[model][dataset] = {}
             for method in methods:
-                if method not in d[model][dataset]:
-                    d[model][dataset][method] = {}
+                if method not in dic_results[model][dataset]:
+                    dic_results[model][dataset][method] = {}
                 for k in Ks:
-                    if k not in d[model][dataset][method]:
-                        d[model][dataset][method][k]  = {}
+                    if k not in dic_results[model][dataset][method]:
+                        dic_results[model][dataset][method][k]  = {}
 
-                    accuracies = active_learning(model, dataset,
-                            method, k, num_trainings,
-                            batch_size, num_epochs, learning_rate)
+                    # accuracies = active_learning(model, dataset,
+                    #         method, k, num_trainings,
+                    #         batch_size, num_epochs, learning_rate)
                     
-                    d[model][dataset][method][k] = accuracies
+                    # dic_results[model][dataset][method][k] = accuracies
+                    dic_results[model][dataset][method][k] = [10,19,int(k),57,69]
+
+    res = Results(dic_results, models, datasets, methods, Ks)
+    res.plot_results(order=["k","model","method","dataset"], split_level=0)
+    quit()
