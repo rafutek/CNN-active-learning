@@ -2,19 +2,14 @@ import matplotlib.pyplot as plt
 
 class Results(object):
     def __init__(self, results:dict, models, datasets, methods, Ks):
-        self.default_order = ["model","dataset","method","k"]
         self.results = results
         self.models = models
         self.datasets = datasets
         self.methods = methods
         self.Ks = Ks
 
-    def plot_results(self, order:list=None, split_level:int=0):
-        if order is None:
-            order = self.default_order
-        self.check_order(order)
+    def plot_results(self, order:list, split_level:int=0):
         self.check_splitlevel(order, split_level)
-
         ordered_results = self.rearrange_results(order)
 
         if split_level == 0:
@@ -36,13 +31,6 @@ class Results(object):
                         self.set_plot(title,label,ordered_results[level1][level2][level3][level4]) 
                         
         plt.show()
-
-
-    def check_order(self, order:list):
-        if not all(item in order for item in self.default_order):
-            raise ValueError("Order "+str(order)+" must contain "
-                            "values of "+str(self.default_order))
-
 
     def check_splitlevel(self, order:list, split_level:int):
         if split_level > len(order):
