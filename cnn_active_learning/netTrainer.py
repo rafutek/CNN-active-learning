@@ -1,13 +1,5 @@
 # -*- coding:utf-8 -*-
 
-"""
-University of Sherbrooke
-Date:
-Authors: Mamadou Mountagha BAH & Pierre-Marc Jodoin
-License:
-Other: Suggestions are welcome
-"""
-
 import warnings
 import torch
 import numpy as np
@@ -20,7 +12,8 @@ from selector import Selector, UncertaintySelector, MarginSamplingSelector
 
 class NetTrainer(object):
     """
-    Class used the train and test the given model in the parameters 
+    Class used to train and test a model on data with given parameters,
+    and select samples for next training
     """
 
     def __init__(self, model,
@@ -33,10 +26,10 @@ class NetTrainer(object):
         """
         Args:
             model: model to train
-            trainset: dataset used to train the model
-            testset: dataset used to test the model
+            data_manager: object managing the dataset
             loss_fn: the loss function used
             optimizer_factory: A callable to create the optimizer. see optimizer function below for more details
+            batch_size: number of samples to put in a batch
             use_cuda: to Use the gpu to train the model
         """
 
@@ -122,7 +115,12 @@ class NetTrainer(object):
 
     def evaluate_on_validation_set(self, k:int):
         """
-        function that evaluate the model on the validation set every epoch
+        Function that evaluate the model on the validation set
+        and return k sample indexes depending on the selection method
+        Args:
+            k: number of sample indexes to select from validation set
+        Returns:
+            Selected sample indexes
         """
         print('Evaluate on validation set...')
         # switch to eval mode so that layers like batchnorm's layers nor dropout's layers
@@ -134,7 +132,7 @@ class NetTrainer(object):
         validation_loss = 0.0
         validation_losses = []
         validation_accuracies = []
-        maxprobas = None
+        all_val_outputs = None
         selection = None
 
         with torch.no_grad() and tqdm(range(len(val_loader))) as t:
@@ -144,6 +142,13 @@ class NetTrainer(object):
 
                 # forward pass
                 val_outputs = self.model(val_inputs)
+
+                # Save outputs
+                if all_val_outputs is None:
+                    all_val_outputs = val_outputs.detach().numpy()
+                else:
+                    all_val_outputs = np.concatenate( \
+                                    (all_val_outputs, val_outputs.detach().numpy()))
   
                 # compute loss function
                 loss = self.loss_fn(val_outputs, val_labels)
@@ -151,11 +156,13 @@ class NetTrainer(object):
                 acc = self.accuracy(val_outputs, val_labels)
                 validation_accuracies.append(acc)
                 validation_loss += loss.item()
-               
-                # select indexes for next training
-                selection = self.selection_method.select(val_outputs, j, k, selection)
 
                 t.update()
+
+        # Select the validation sample indexes with the selection method
+        idx_val_samples = self.data_manager.get_val_idx()
+        selector = self.selection_method(idx_val_samples, all_val_outputs)
+        selected_idx = selector.select(k)
 
         self.metric_values['val_loss'].append(np.mean(validation_losses))
         self.metric_values['val_acc'].append(np.mean(validation_accuracies))
@@ -166,7 +173,7 @@ class NetTrainer(object):
         # switch back to train mode
         self.model.train()
 
-        return self.selection_method.indexes(selection)
+        return selected_idx
 
     def accuracy(self, outputs, labels):
         """
@@ -184,7 +191,7 @@ class NetTrainer(object):
     def evaluate_on_test_set(self):
         """
         Evaluate the model on the test set
-        :returns;
+        Returns:
             Accuracy of the model on the test set
         """
         print('Evaluate on test set...')

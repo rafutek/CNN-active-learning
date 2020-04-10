@@ -2,20 +2,42 @@ import numpy as np
 
 
 class Selector(object):
-    def select(self):
+    """
+    Base of a selection method class
+    """
+    def __init__(self, val_idx, outputs):
+        self.val_idx = val_idx
+        self.outputs = outputs
+
+    def compute_selection_parameters(self):
         pass
-    def indexes(self):
+    def order_val_idx(self):
         pass
+    def get_k_idx(self, k):
+        pass    
+    def select(self, k):
+        self.compute_selection_parameters()
+        self.order_val_idx()
+        return self.get_k_idx(k)
+
+#     def select(self):
+#         pass
+#     def indexes(self):
+#         pass
 
 class RandomSelector(Selector):
     @staticmethod
     def select(network_output, num_loop, k, selection):
+        """
+        Function that select k sample numbers from validation set
+        and add them to the training set
+        """
         batch_size = len(network_output)
-        image_idx = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
+        sample_numbers = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
         if selection is None:
-            selection = image_idx
+            selection = sample_numbers
         else:
-            selection = np.concatenate((selection,image_idx))
+            selection = np.concatenate((selection,sample_numbers))
             selection = selection[:k]
         return selection
 
@@ -27,9 +49,9 @@ class UncertaintySelector(Selector):
     @staticmethod
     def select(network_output, num_loop, k, selection):
         batch_size = len(network_output)
-        image_idx = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
+        sample_numbers = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
         maxprobability, _ = network_output.max(dim=1)
-        batch_maxprobas = np.array([maxprobability.tolist(), image_idx.tolist()])
+        batch_maxprobas = np.array([maxprobability.tolist(), sample_numbers.tolist()])
         if selection is None:
             selection = batch_maxprobas
         else:
@@ -47,30 +69,47 @@ class UncertaintySelector(Selector):
 
 
 class MarginSamplingSelector(Selector):
-    @staticmethod
-    def select(network_output, num_loop, k, selection):
-        batch_size = len(network_output)
-        image_idx = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
+    """
+    Class to select validation samples for next training
+    with the margin sampling selection method
+    """
+    def compute_selection_parameters(self):
+        """
+        Function that computes the parameter
+        of each sample based on margin sampling
+        """
+        # Sort the class probabilities of each sample
+        sorted_probas = np.sort(self.outputs)
 
-        sorted_network_output = network_output.sort()
-        maxprobability1 = sorted_network_output[0]
-        maxprobability2 = sorted_network_output[1]
+        # Keep the first and second 
+        # maximum probability of each sample
+        maxproba = sorted_probas[:,-1] 
+        second_maxproba = sorted_probas[:,-2] 
 
-        margin_sampling = maxprobability1 - maxprobability2
+        # Subtract the first with the second
+        # max proba of each sample
+        self.parameters = maxproba - second_maxproba
 
-        batch_maxprobas = np.array([margin_sampling.tolist(), image_idx.tolist()])
-        if selection is None:
-            selection = batch_maxprobas
-        else:
-            selection = np.concatenate((selection, batch_maxprobas), axis=1)
+    def order_val_idx(self):
+        """
+        Function that order validation sample indexes
+        based on the parameter of each sample
+        """
+        # Create an array containing index and parameter of each sample
+        param_with_idx = np.array([self.val_idx, self.parameters])
+        
+        # Get the indexes of sorted parameters
+        # and then the associated sample indexes
+        sort_idx = param_with_idx[1,:].argsort()
+        self.sample_idx =  param_with_idx[0,sort_idx]
 
-        if selection.shape[1] > k:
-            sort_idx = selection[0,:].argsort()
-            selection =  selection[:,sort_idx] # sort maximums
-            selection = selection[:,:k] # keep k minimal maximums
-        return selection
-
-    @staticmethod
-    def indexes(selection):
-        return selection[1,:].astype(int)
-
+    def get_k_idx(self,k):
+        """
+        Get the first k indexes previously ordered
+        Args:
+            k: number of indexes wanted
+        Returns:
+            k indexes indicating the samples to use
+            for the next training
+        """
+        return self.sample_idx[:k].astype(int)

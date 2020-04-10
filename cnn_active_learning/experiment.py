@@ -7,7 +7,15 @@ from results import Results
 
 def argument_parser(script_name, model_choices, dataset_choices, method_choices):
     """
-        A parser to allow user to easily experiment different models along with datasets and differents parameters
+    A parser to allow user to easily experiment different models along with datasets
+    and differents parameters
+    Args:
+        script_name: string that will be used as script name
+        model_choices: list of the possible models to use
+        dataset_choices: list of the possible datasets to use
+        method_choices: list of the possible selection methods to use
+    Returns:
+       The parsed arguments
     """
     parser = argparse.ArgumentParser(
                 prog=script_name,
@@ -42,6 +50,16 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
     return parser.parse_args()
 
 def check_list_arg(arg, choices=None):
+    """
+    Function that split the string containing arguments
+    and if choices are given, raise an error if an argument 
+    is not in the choice list
+    Args:
+        arg: string containing arguments (ex: "cifar10,cifar100")
+        choices: list of possible choices
+    Returns:
+        List of arguments (ex: ['cifar10','cifar100'])
+    """
     arg_list = [item for item in arg.split(',')]
     if choices is not None:
         args_in_choices = all(item in choices for item in arg_list)
@@ -51,6 +69,16 @@ def check_list_arg(arg, choices=None):
     return arg_list
 
 def check_full_list_arg(arg, choices=None):
+    """
+    Function that split the string containing arguments
+    and if choices are given, raise an error if arg does
+    not contain every possible choice
+    Args:
+        arg: string containing arguments (ex: "k,model,dataset,method")
+        choices: list of choices that must be present in arg
+    Returns:
+        List of arguments (ex: ['k','model','dataset','method'])
+    """
     arg_list = [item for item in arg.split(',')]
     if choices is not None:
         all_choices_in_list = all(item in arg_list for item in choices)
@@ -60,13 +88,20 @@ def check_full_list_arg(arg, choices=None):
     return arg_list
 
 if __name__ == "__main__":
+    """
+    Main program that launch an active learning experiment
+    based on arguments passed by user
+    """
     model_choices = ['VggNet','ResNeXt','SENet']
     dataset_choices = ['cifar10','cifar100','audioset']
     methods_choices = ['random','uncertainty_sampling','margin_sampling']
     order_choices = ['model','dataset','method', 'k']
 
+    # Get arguments from user
     args = argument_parser(os.path.basename(__file__), \
             model_choices, dataset_choices, methods_choices)
+
+    # Check if the arguments are ok and set corresponding variables
     models = check_list_arg(args.models,model_choices)
     datasets = check_list_arg(args.datasets,dataset_choices)
     methods = check_list_arg(args.methods,methods_choices)
@@ -79,6 +114,7 @@ if __name__ == "__main__":
     num_epochs = args.num_epochs
     learning_rate = args.lr
 
+    # Launch the experiment and save each result in a dictionary
     dic_results = {}
     for model in models:
         if model not in dic_results:
@@ -99,6 +135,7 @@ if __name__ == "__main__":
                     
                     dic_results[model][dataset][method][k] = accuracies
 
+    # Show the results depending on user settings
     res = Results(dic_results, models, datasets, methods, Ks)
     res.plot_results(order, split_level)
     quit()

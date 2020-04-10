@@ -9,11 +9,28 @@ import torch.nn as nn
 
 def active_learning(network, dataset, method, k, num_trainings,
                     batch_size, num_epochs, learning_rate):
+    """
+    Function that execute an active learning
+    depending on several arguments
+    Args:
+        network: the model that will be trained and tested
+        dataset: the data used for the active learning
+        method: method used to select the k samples to add
+                to the training set at each active learning loop
+        k: number of samples to add
+        num_trainings: number of active learning loops
+        batch_size: number of samples in a batch
+        num_epochs: number of loops during one training
+        learning_rate: learning rate of the optimizer
+    Returns:
+        The list of accuracies of each test phase
+    """
+
     print("Starting active learning with"
             "\n\tmodel: "+network+
             "\n\tdataset: "+dataset+
             "\n\tselection method: "+method+
-            "\n\tk: "+str(k)+
+            "\n\tk: "+k+
             "\n\tnum trainings: "+str(num_trainings)+
             "\n\tbatch size: "+str(batch_size)+
             "\n\tnum epochs: "+str(num_epochs)+
@@ -30,54 +47,86 @@ def active_learning(network, dataset, method, k, num_trainings,
                         "the program will not be able to extract the training "
                         "samples from the pool at some point")
 
-    idx_labeled_samples = np.arange(k)
-    dataManager = DataManager(data=data, \
-            idx_labeled_samples=idx_labeled_samples, \
-            batch_size=batch_size)
-    
-    num_classes = len(data.get_label_names())
+    # Set the optimizer factory function
+    optimizer = optimizer_setup(SGD, lr=learning_rate, momentum=0.9)
 
+    # Create the network depending on the number of classes
+    model = model(num_classes=len(data.get_label_names()))
+
+    # First index samples to train
+    idx_labeled_samples = np.arange(k)    
     
+    # List that will contain the test accuracy of each training
     accuracies = []
     
     for num_training in range(num_trainings):
         print("\nActive learning loop "+str(num_training+1)+"/"+str(num_trainings))
+
+        # Set data loaders depending on training samples
         dataManager = DataManager(data=data, \
             idx_labeled_samples=idx_labeled_samples, \
             batch_size=batch_size)
-    
-        optimizer = optimizer_setup(SGD, lr=0.001, momentum=0.9)
-        vgg = VggNet(num_classes=num_classes)
-    
-        netTrainer = NetTrainer(model=vgg, \
+
+        # Set the network trainer and launch the training
+        netTrainer = NetTrainer(model=model, \
                 data_manager=dataManager, \
                 selection_method=selection_method, \
                loss_fn=nn.CrossEntropyLoss() , \
                optimizer_factory=optimizer)
-    
         netTrainer.train(num_epochs)
-        selected_samples_idx = netTrainer.evaluate_on_validation_set(k)
-        add_to_train_idx = selected_samples_idx
+
+        # Select k samples depending on the selection method
+        # and add them to the training samples
+        add_to_train_idx = netTrainer.evaluate_on_validation_set(k)
         idx_labeled_samples = np.concatenate((idx_labeled_samples, add_to_train_idx))
         print("Added the selected samples to the new training set")
+
+        # Compute the accuracy on the test set and save it
         accuracy = netTrainer.evaluate_on_test_set()
         accuracies.append(accuracy)
     
     return accuracies
 
 def getModel(model:str):
+    """
+    Function to get the model object
+    Args:
+        model: string corresponding to the model object
+    Returns:
+        The model object
+    """
     if model == "VggNet":
         return VggNet
     elif model == "ResNeXt":
         return None
+    elif model == "SENet":
+        return None
 
-def getData(dataset):
+def getData(dataset:str):
+    """
+    Function that download the wanted dataset
+    if not already done and return the data object
+    Args:
+        dataset: string corresponding to the data object
+    Returns:
+        The data object initialized
+    """
     if dataset == "cifar10":
         return CIFAR10Extractor()
     elif dataset == "cifar100":
         return CIFAR100Extractor()
+    elif dataset == "audioset":
+        return None
 
 def getSelectionMethod(method):
+    """
+    Function to get the wanted selection method
+    Args:
+        method: string corresponding to the 
+                selection method object
+    Returns:
+        The selection method object
+    """
     if method == "random":
         return RandomSelector
     elif method == "uncertainty_sampling":

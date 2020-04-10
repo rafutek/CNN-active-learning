@@ -29,22 +29,29 @@ class DataManager(object):
         val_set = Dataset(val_samples, val_labels)
         test_set = Dataset(test_samples, test_labels)
         
-        self.train_loader = DataLoader(train_set, batch_size, shuffle=True)
-        self.validation_loader = DataLoader(val_set, batch_size, shuffle=True)
-        self.test_loader = DataLoader(test_set, batch_size, shuffle=True)
+        self.train_loader = DataLoader(train_set, batch_size)
+        self.validation_loader = DataLoader(val_set, batch_size)
+        self.test_loader = DataLoader(test_set, batch_size)
 
     def train_validation_split(self, pool_samples, pool_labels, idx_labeled_samples):
         pool_length = len(pool_samples)
 
+        # Set the train samples and labels
         mask_train = np.zeros(pool_length ,dtype=bool)
         mask_train[idx_labeled_samples] = True
         train_samples = pool_samples[mask_train]
         train_labels = pool_labels[mask_train]
 
+        # Set the validation samples and labels
         mask_val = np.ones(pool_length,dtype=bool)
         mask_val[idx_labeled_samples] = False
         val_samples = pool_samples[mask_val]
         val_labels = pool_labels[mask_val]
+
+        # Set the train and validation samples indexes
+        pool_idx = np.arange(pool_length)
+        self.train_idx = pool_idx[mask_train]
+        self.val_idx = pool_idx[mask_val]
 
         return train_samples, train_labels, val_samples, val_labels
 
@@ -57,3 +64,8 @@ class DataManager(object):
     def get_test_loader(self):
         return self.test_loader
 
+    def get_train_idx(self):
+        return self.train_idx
+
+    def get_val_idx(self):
+        return self.val_idx
