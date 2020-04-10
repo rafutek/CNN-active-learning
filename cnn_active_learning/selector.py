@@ -1,9 +1,8 @@
 import numpy as np
 
-
 class Selector(object):
     """
-    Base of a selection method class
+    Base of a selection method classes
     """
     def __init__(self, val_idx, outputs):
         self.val_idx = val_idx
@@ -22,7 +21,7 @@ class Selector(object):
             k indexes indicating the samples to use
             for the next training
         """
-        raise NotImplemented
+        raise NotImplementedError("get_k_idx method must be implemented")
 
     def select(self, k):
         self.compute_selection_parameters()
@@ -31,6 +30,9 @@ class Selector(object):
 
 
 class RandomSelector(Selector):
+    """
+    Class to select random validation samples for next training
+    """
     def order_val_idx(self):
         """
         Function that shuffle the validation indexes
@@ -44,26 +46,35 @@ class RandomSelector(Selector):
 
 
 class UncertaintySelector(Selector):
-    @staticmethod
-    def select(network_output, num_loop, k, selection):
-        batch_size = len(network_output)
-        sample_numbers = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
-        maxprobability, _ = network_output.max(dim=1)
-        batch_maxprobas = np.array([maxprobability.tolist(), sample_numbers.tolist()])
-        if selection is None:
-            selection = batch_maxprobas
-        else:
-            selection = np.concatenate((selection, batch_maxprobas), axis=1)
+    """
+    Class to select validation samples for next training
+    with the uncertainty sampling selection method
+    """
+    def compute_selection_parameters(self):
+        """
+        Function that computes the uncertainty of each sample
+        """
+        # Sort the class probabilities of each sample
+        sorted_probas = np.sort(self.outputs)
 
-        if selection.shape[1] > k:
-            sort_idx = selection[0,:].argsort()
-            selection =  selection[:,sort_idx] # sort maximums
-            selection = selection[:,:k] # keep k minimal maximums
-        return selection
+        self.maxprobas = sorted_probas[:,-1]
 
-    @staticmethod
-    def indexes(selection):
-        return selection[1,:].astype(int)
+    def order_val_idx(self):
+        """
+        Function that order validation sample indexes
+        based on the parameter of each sample
+        """
+        # Create an array containing index
+        # and maximum class probability of each sample
+        maxproba_with_idx = np.array([self.val_idx, self.maxprobas])
+        
+        # Get the smaller maximums class probabilities indexes
+        # and then the associated sample indexes
+        sort_idx = maxproba_with_idx[1,:].argsort()
+        self.sample_idx =  maxproba_with_idx[0,sort_idx]
+
+    def get_k_idx(self,k):
+        return self.sample_idx[:k].astype(int)
 
 
 class MarginSamplingSelector(Selector):
@@ -73,8 +84,7 @@ class MarginSamplingSelector(Selector):
     """
     def compute_selection_parameters(self):
         """
-        Function that computes the parameter
-        of each sample based on margin sampling
+        Function that computes the margin of each sample
         """
         # Sort the class probabilities of each sample
         sorted_probas = np.sort(self.outputs)
