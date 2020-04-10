@@ -14,36 +14,34 @@ class Selector(object):
     def order_val_idx(self):
         pass
     def get_k_idx(self, k):
-        pass    
+        """
+        Get the first k indexes previously ordered
+        Args:
+            k: number of indexes wanted
+        Returns:
+            k indexes indicating the samples to use
+            for the next training
+        """
+        raise NotImplemented
+
     def select(self, k):
         self.compute_selection_parameters()
         self.order_val_idx()
         return self.get_k_idx(k)
 
-#     def select(self):
-#         pass
-#     def indexes(self):
-#         pass
 
 class RandomSelector(Selector):
-    @staticmethod
-    def select(network_output, num_loop, k, selection):
+    def order_val_idx(self):
         """
-        Function that select k sample numbers from validation set
-        and add them to the training set
+        Function that shuffle the validation indexes
+        so that the first k indexes will be random
         """
-        batch_size = len(network_output)
-        sample_numbers = np.arange(batch_size) + k + batch_size*num_loop # samples index in the pool
-        if selection is None:
-            selection = sample_numbers
-        else:
-            selection = np.concatenate((selection,sample_numbers))
-            selection = selection[:k]
-        return selection
+        self.random_idx = self.val_idx
+        np.random.shuffle(self.random_idx)
 
-    @staticmethod
-    def indexes(selection):
-        return selection.astype(int)
+    def get_k_idx(self,k):
+        return self.random_idx[:k].astype(int)
+
 
 class UncertaintySelector(Selector):
     @staticmethod
@@ -104,12 +102,4 @@ class MarginSamplingSelector(Selector):
         self.sample_idx =  param_with_idx[0,sort_idx]
 
     def get_k_idx(self,k):
-        """
-        Get the first k indexes previously ordered
-        Args:
-            k: number of indexes wanted
-        Returns:
-            k indexes indicating the samples to use
-            for the next training
-        """
         return self.sample_idx[:k].astype(int)
