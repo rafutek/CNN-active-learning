@@ -25,12 +25,18 @@ def active_learning(network, dataset, method, k, num_trainings,
     selection_method = getSelectionMethod(method)
     k = int(k)
 
+    if len(data.get_pool_data()[0]) < k * num_trainings:
+        raise ValueError("'k' or 'num-trainings' is too big, "
+                        "the program will not be able to extract the training "
+                        "samples from the pool at some point")
+
     idx_labeled_samples = np.arange(k)
     dataManager = DataManager(data=data, \
             idx_labeled_samples=idx_labeled_samples, \
             batch_size=batch_size)
     
     num_classes = len(data.get_label_names())
+
     
     accuracies = []
     
