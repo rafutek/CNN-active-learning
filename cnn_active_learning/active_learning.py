@@ -7,8 +7,8 @@ import numpy as np
 from torch.optim import SGD 
 import torch.nn as nn
 
-def active_learning(network, dataset, method, k, num_trainings,
-                    batch_size, num_epochs, learning_rate):
+def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:int,
+                    batch_size:int, num_epochs:int, learning_rate:float, use_cuda:bool):
     """
     Function that execute an active learning
     depending on several arguments
@@ -22,6 +22,7 @@ def active_learning(network, dataset, method, k, num_trainings,
         batch_size: number of samples in a batch
         num_epochs: number of loops during one training
         learning_rate: learning rate of the optimizer
+        use_cuda: boolean to use the gpu for training
     Returns:
         The list of accuracies of each test phase
     """
@@ -34,7 +35,8 @@ def active_learning(network, dataset, method, k, num_trainings,
             "\n\tnum trainings: "+str(num_trainings)+
             "\n\tbatch size: "+str(batch_size)+
             "\n\tnum epochs: "+str(num_epochs)+
-            "\n\tlearning rate: "+str(learning_rate)
+            "\n\tlearning rate: "+str(learning_rate)+
+            "\n\tuse cuda: "+str(use_cuda)
     )
 
     model = getModel(network)
@@ -69,10 +71,11 @@ def active_learning(network, dataset, method, k, num_trainings,
 
         # Set the network trainer and launch the training
         netTrainer = NetTrainer(model=model, \
-                data_manager=dataManager, \
-                selection_method=selection_method, \
-               loss_fn=nn.CrossEntropyLoss() , \
-               optimizer_factory=optimizer)
+                                data_manager=dataManager, \
+                                selection_method=selection_method, \
+                                loss_fn=nn.CrossEntropyLoss() , \
+                                optimizer_factory=optimizer, \
+                                use_cuda=use_cuda)
         netTrainer.train(num_epochs)
 
         # Select k samples depending on the selection method

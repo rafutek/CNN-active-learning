@@ -30,7 +30,7 @@ class NetTrainer(object):
             loss_fn: the loss function used
             optimizer_factory: A callable to create the optimizer. see optimizer function below for more details
             batch_size: number of samples to put in a batch
-            use_cuda: to Use the gpu to train the model
+            use_cuda: Use the gpu to train the model
         """
 
         device_name = 'cuda:0' if use_cuda else 'cpu'

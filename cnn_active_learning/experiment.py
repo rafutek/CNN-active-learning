@@ -47,6 +47,8 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
             help='set the number of epochs per training')
     parser.add_argument('--lr', type=float, default=0.001,
             help='Learning rate')
+    parser.add_argument('--use-cuda', type=bool, default=False,
+            help='try to use the gpu for trainings if true')
     return parser.parse_args()
 
 def check_list_arg(arg, choices=None):
@@ -113,6 +115,7 @@ if __name__ == "__main__":
     num_trainings = args.num_trainings
     num_epochs = args.num_epochs
     learning_rate = args.lr
+    use_cuda = args.use_cuda
 
     # Launch the experiment and save each result in a dictionary
     dic_results = {}
@@ -130,8 +133,8 @@ if __name__ == "__main__":
                         dic_results[model][dataset][method][k]  = {}
 
                     accuracies = active_learning(model, dataset,
-                            method, k, num_trainings,
-                            batch_size, num_epochs, learning_rate)
+                            method, k, num_trainings, batch_size,
+                            num_epochs, learning_rate, use_cuda)
                     
                     dic_results[model][dataset][method][k] = accuracies
 
