@@ -20,9 +20,9 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
     parser = argparse.ArgumentParser(
                 prog=script_name,
                 description="This program allows to train different models of classification on"
-                            " different datasets, with different active learning methods.")
+                            " different datasets, with different active learning methods")
     parser.add_argument('--models',type=str, default="VggNet",
-            help="set the list of models (ex: 'VggNet,ResNeXt'). "
+            help="set the list of models (ex: 'VggNet,ResNet'). "
                 "Possible models: "+str(model_choices))
     parser.add_argument('--datasets', type=str, default="cifar10",
             help="set the list of datasets (ex: 'cifar10,cifar100')."
@@ -38,7 +38,7 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
             help="set the order for results plot (ex: 'model,dataset,method,k')")
     parser.add_argument('--split-level', type=int, default=0,
             help="set the level where to split the results in multiple plots "
-                "(ex: 1 will show the results, given the above order, of each model)")
+                "(ex: 1 will show the results, given the above order, per model)")
     parser.add_argument('--num-trainings', type=int, default=5,
             help='set the number of active learning loops')
     parser.add_argument('--batch-size', type=int, default=20,
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     Main program that launch an active learning experiment
     based on arguments passed by user
     """
-    model_choices = ['VggNet','ResNeXt','SENet']
+    model_choices = ['VggNet','ResNet','AlexNet']
     dataset_choices = ['cifar10','cifar100','audioset']
     methods_choices = ['random','uncertainty_sampling','margin_sampling']
     order_choices = ['model','dataset','method', 'k']

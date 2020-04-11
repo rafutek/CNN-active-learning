@@ -1,4 +1,6 @@
-from networks.VggNet import VggNet
+from models.VggNet import VggNet
+from models.ResNet import ResNet
+from models.AlexNet import AlexNet
 from dataExtractor import CIFAR10Extractor, CIFAR100Extractor 
 from dataManager import DataManager
 from selector import RandomSelector, UncertaintySelector, MarginSamplingSelector
@@ -100,10 +102,10 @@ def getModel(model:str):
     """
     if model == "VggNet":
         return VggNet
-    elif model == "ResNeXt":
-        return None
-    elif model == "SENet":
-        return None
+    elif model == "ResNet":
+        return ResNet
+    elif model == "AlexNet":
+        return AlexNet
 
 def getData(dataset:str):
     """
