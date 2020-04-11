@@ -138,3 +138,5 @@ def getSelectionMethod(method):
         return UncertaintySelector
     elif method == "margin_sampling":
         return MarginSamplingSelector
+    elif method == "entropy_sampling":
+        return EntropySamplingSelector

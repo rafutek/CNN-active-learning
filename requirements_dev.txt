@@ -3,7 +3,7 @@ tox
 coverage
 pytest
 pytest-runner
-
+pandas
 curl
 torch
 torchvision
