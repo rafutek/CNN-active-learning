@@ -45,14 +45,14 @@ class RandomSelector(Selector):
         return self.random_idx[:k].astype(int)
 
 
-class UncertaintySelector(Selector):
+class LeastConfidenceSelector(Selector):
     """
     Class to select validation samples for next training
-    with the uncertainty sampling selection method
+    with the least confidence sampling selection method
     """
     def compute_selection_parameters(self):
         """
-        Function that computes the uncertainty of each sample
+        Function that computes the maximum confidence of each sample
         """
         # Sort the class probabilities of each sample
         sorted_probas = np.sort(self.outputs)

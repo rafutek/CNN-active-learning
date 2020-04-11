@@ -3,7 +3,7 @@ from models.ResNet import ResNet
 from models.AlexNet import AlexNet
 from dataExtractor import CIFAR10Extractor, CIFAR100Extractor, UrbanSoundExtractor 
 from dataManager import DataManager
-from selector import RandomSelector, UncertaintySelector, MarginSamplingSelector
+from selector import RandomSelector, LeastConfidenceSelector, MarginSamplingSelector
 from netTrainer import optimizer_setup, NetTrainer
 import numpy as np
 from torch.optim import SGD 
@@ -134,7 +134,7 @@ def getSelectionMethod(method):
     """
     if method == "random":
         return RandomSelector
-    elif method == "uncertainty_sampling":
-        return UncertaintySelector
-    elif method == "margin_sampling":
+    elif method == "least_confidence":
+        return LeastConfidenceSelector
+    elif method == "margin":
         return MarginSamplingSelector

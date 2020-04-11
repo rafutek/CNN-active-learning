@@ -27,9 +27,9 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
     parser.add_argument('--datasets', type=str, default="cifar10",
             help="set the list of datasets (ex: 'cifar10,cifar100')."
                 "Possible datasets: "+str(dataset_choices))
-    parser.add_argument('--methods', type=str, default="uncertainty_sampling",
+    parser.add_argument('--methods', type=str, default="least_confidence",
             help="set the list of active learning selection methods "
-                "(ex: 'random,uncertainty_sampling')."
+                "(ex: 'random,margin')."
                 " Possible methods: "+str(method_choices))
     parser.add_argument('--Ks', type=str, default="200",
             help="set the list of number of samples selected and added "
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     """
     model_choices = ['VggNet','ResNet','AlexNet']
     dataset_choices = ['cifar10','cifar100','urbansound']
-    methods_choices = ['random','uncertainty_sampling','margin_sampling']
+    methods_choices = ['random','least_confidence','margin']
     order_choices = ['model','dataset','method', 'k']
 
     # Get arguments from user

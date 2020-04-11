@@ -7,7 +7,7 @@ from dataManager import DataManager
 from typing import Callable, Type
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from selector import Selector, UncertaintySelector, MarginSamplingSelector
+from selector import Selector, LeastConfidenceSelector, MarginSamplingSelector
 
 
 class NetTrainer(object):
