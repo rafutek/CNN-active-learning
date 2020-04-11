@@ -108,8 +108,6 @@ class CIFAR10Extractor(DataExtractor):
                 pool_samples = np.append(pool_samples, data, axis=0)
                 pool_labels = np.append(pool_labels, labels)
         
-        pool_samples = pool_samples[0:1000]
-        pool_labels = pool_labels[0:1000]
         pool_samples = np.vstack(pool_samples).reshape(-1, 3, 32, 32)
         return pool_samples, pool_labels
 
