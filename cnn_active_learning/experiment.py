@@ -47,8 +47,10 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
             help='set the number of epochs per training')
     parser.add_argument('--lr', type=float, default=0.001,
             help='Learning rate')
-    parser.add_argument('--use-cuda', type=bool, default=False,
-            help='try to use the gpu for trainings if true')
+    parser.add_argument('--use-cuda', action='store_true',
+            help='try to use the gpu for trainings')
+    parser.add_argument('--skip-train', action='store_true',
+            help="skip training and load previous results")
     return parser.parse_args()
 
 def check_list_arg(arg, choices=None):
@@ -116,29 +118,37 @@ if __name__ == "__main__":
     num_epochs = args.num_epochs
     learning_rate = args.lr
     use_cuda = args.use_cuda
+    skip_train = args.skip_train
 
-    # Launch the experiment and save each result in a dictionary
-    dic_results = {}
-    for model in models:
-        if model not in dic_results:
-            dic_results[model] = {}
-        for dataset in datasets:
-            if dataset not in dic_results[model]:
-                dic_results[model][dataset] = {}
-            for method in methods:
-                if method not in dic_results[model][dataset]:
-                    dic_results[model][dataset][method] = {}
-                for k in Ks:
-                    if k not in dic_results[model][dataset][method]:
-                        dic_results[model][dataset][method][k]  = {}
+    if not skip_train:
+       # Launch the experiment and save each result in a dictionary
+        dic_results = {}
+        for model in models:
+            if model not in dic_results:
+                dic_results[model] = {}
+            for dataset in datasets:
+                if dataset not in dic_results[model]:
+                    dic_results[model][dataset] = {}
+                for method in methods:
+                    if method not in dic_results[model][dataset]:
+                        dic_results[model][dataset][method] = {}
+                    for k in Ks:
+                        if k not in dic_results[model][dataset][method]:
+                            dic_results[model][dataset][method][k]  = {}
+    
+                        accuracies = active_learning(model, dataset,
+                                method, k, num_trainings, batch_size,
+                                num_epochs, learning_rate, use_cuda)
+                        
+                        dic_results[model][dataset][method][k] = accuracies
 
-                    accuracies = active_learning(model, dataset,
-                            method, k, num_trainings, batch_size,
-                            num_epochs, learning_rate, use_cuda)
-                    
-                    dic_results[model][dataset][method][k] = accuracies
+        # Save the results
+        res = Results(dic_results)
+        res.save_results()
 
-    # Show the results depending on user settings
-    res = Results(dic_results, models, datasets, methods, Ks)
+    else:
+        # Load the results
+        res = Results()
+        res.load_results()
+
     res.plot_results(order, split_level)
-    quit()

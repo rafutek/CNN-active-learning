@@ -1,25 +1,20 @@
 import matplotlib.pyplot as plt
+import pickle
 
 class Results(object):
     """
     Class to show the experiment result depending
     on user settings
     """
-    def __init__(self, results:dict, models, datasets, methods, Ks):
+    results_filename = "./data/results.pkl"
+    
+    def __init__(self, results:dict=None):
         """
         Constructor that set experiment variables
         Args:
             results: dictonary containing the results
-            models: list of models used during the experiment
-            datasets: list of datasets used during the experiment
-            methods: list of methods used during the experiment
-            Ks: list of k numbers (strings) used during the experiment
         """
         self.results = results
-        self.models = models
-        self.datasets = datasets
-        self.methods = methods
-        self.Ks = Ks
 
     def plot_results(self, order:list, split_level:int=0):
         """
@@ -157,4 +152,18 @@ class Results(object):
         plt.title(title)
         plt.xlabel("training")
         plt.ylabel("accuracy (%)")
+
+    def save_results(self):
+        """
+        Function to save the results
+        """
+        with open(self.results_filename, 'wb') as handle:
+            pickle.dump(self.results, handle)
+
+    def load_results(self):
+        """
+        Function to load the saved results
+        """
+        with open(self.results_filename, 'rb') as handle:
+            self.results = pickle.load(handle)
 
