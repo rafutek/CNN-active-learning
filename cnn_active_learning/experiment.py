@@ -95,7 +95,7 @@ if __name__ == "__main__":
     based on arguments passed by user
     """
     model_choices = ['VggNet','ResNet','AlexNet']
-    dataset_choices = ['cifar10','cifar100','audioset']
+    dataset_choices = ['cifar10','cifar100','urbansound']
     methods_choices = ['random','uncertainty_sampling','margin_sampling']
     order_choices = ['model','dataset','method', 'k']
 
