@@ -105,7 +105,7 @@ class CIFAR100Extractor(DataExtractor):
             pool_dic = self.unpickle(filepath)
             print(pool_dic.keys())
             data = pool_dic['data']
-            labels = pool_dic['labels'] # ERR: il faut voir quels labels on utilise
+            labels = pool_dic['coarse_labels'] # ERR: il faut voir quels labels on utilise
             if not init:
                 init = True
                 pool_samples = np.array(data)
@@ -128,12 +128,12 @@ class CIFAR100Extractor(DataExtractor):
         filepath = self.data_dir + 'test'
         test_dic = self.unpickle(filepath)
         test_samples = test_dic['data']
-        test_labels = test_dic['labels']
+        test_labels = test_dic['coarse_labels']
         test_samples = np.vstack(test_samples).reshape(-1, 3, 32, 32)
         return test_samples, test_labels
 
     def extract_label_names(self):
         filepath = self.data_dir + 'meta'
         label_dic = self.unpickle(filepath)
-        label_names = label_dic['label_names']
+        label_names = label_dic['coarse_label_names']
         return label_names
