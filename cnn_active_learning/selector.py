@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.stats import entropy
 class Selector(object):
     """
     Base of a selection method classes
@@ -113,3 +113,43 @@ class MarginSamplingSelector(Selector):
 
     def get_k_idx(self,k):
         return self.sample_idx[:k].astype(int)
+
+
+class EntropySamplingSelector(Selector):
+    """
+    Class to select validation samples for next training
+    with the uncertainty sampling selection method
+    """
+
+    def compute_selection_parameters(self):
+        """
+        Function that computes the uncertainty of each sample
+        """
+        # Sort the class probabilities of each sample
+        sorted_probas = np.sort(self.outputs)
+        ent = []
+        for t in range(len(self.outputs)-1):
+            print("1111111111111111111111111111111111")
+            e = entropy(self.outputs[t])
+            ent.append(e)
+        self.parameters = ent
+
+    def order_val_idx(self):
+        """
+        Function that order validation sample indexes
+        based on the parameter of each sample
+        """
+        # Create an array containing index
+        # and entropy of each sample
+        ent_with_idx = np.array([self.val_idx, self.parameters])
+        print(ent_with_idx.shape)
+        # sort by entropy and get corresponding indexes
+        seq = self.parameters
+        sort_idx = sorted(range(len(seq)), key=seq.__getitem__)
+
+        self.sample_idx = np.array(sort_idx)
+
+    def get_k_idx(self, k):
+        return self.sample_idx[:k].astype(int)
+
+

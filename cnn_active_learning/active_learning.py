@@ -3,7 +3,7 @@ from models.ResNet import ResNet
 from models.AlexNet import AlexNet
 from dataExtractor import CIFAR10Extractor, CIFAR100Extractor, UrbanSoundExtractor 
 from dataManager import DataManager
-from selector import RandomSelector, LeastConfidenceSelector, MarginSamplingSelector
+from selector import *
 from netTrainer import optimizer_setup, NetTrainer
 import numpy as np
 from torch.optim import SGD 
@@ -138,3 +138,5 @@ def getSelectionMethod(method):
         return LeastConfidenceSelector
     elif method == "margin":
         return MarginSamplingSelector
+    elif method == "entropy":
+        return EntropySamplingSelector
