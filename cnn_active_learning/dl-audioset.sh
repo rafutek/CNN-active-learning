@@ -1,6 +1,6 @@
 #!/bin/sh
 DATA_DIR="./data"
-UNZIP_NAME="UrbanSound8K.csv"
+UNZIP_NAME="./UrbanSound8K/metadata/UrbanSound8K.csv"
 ARCHIVE_NAME="UrbanSound8K.tar.gz"
 DATASET_URL=https://goo.gl/8hY5ER
 
@@ -11,7 +11,7 @@ DATASET_URL=https://goo.gl/8hY5ER
 if [ ! -d "${DATA_DIR}/${UNZIP_NAME}" ]; then
     if [ ! -f "${DATA_DIR}/${ARCHIVE_NAME}" ]; then
         echo "Downloading UrbanSound8K dataset..."
-        curl ${DATASET_URL} > "${DATA_DIR}/${ARCHIVE_NAME}"
+        curl -L -O ${DATASET_URL} > "${DATA_DIR}/${ARCHIVE_NAME}"
     fi
 
     if [ -f "${DATA_DIR}/${ARCHIVE_NAME}" ]; then
