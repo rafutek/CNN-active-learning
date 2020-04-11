@@ -84,7 +84,7 @@ class CIFAR10Extractor(DataExtractor):
         Function that call the script to download
         the CIFAR10 dataset and unzip it
         """
-        subprocess.call(['./dl-CIFAR10.sh'])
+        subprocess.call(['./scripts/dl-CIFAR10.sh'])
    
     def extract_pool_data(self):
         """
@@ -154,7 +154,7 @@ class CIFAR100Extractor(DataExtractor):
         Function that call the script to download
         the CIFAR100 dataset and unzip it
         """
-        subprocess.call(['./dl-CIFAR100.sh'])
+        subprocess.call(['./scripts/dl-CIFAR100.sh'])
 
     def extract_pool_data(self):
         """
@@ -221,7 +221,7 @@ class UrbanSoundExtractor(DataExtractor):
         Function that call the script to download
         the UrbanSound dataset and unzip it
         """
-        subprocess.call(['./dl-audioset.sh'])
+        subprocess.call(['./scripts/dl-audioset.sh'])
 
     def extract_pool_data(self):
         raise NotImplementedError
