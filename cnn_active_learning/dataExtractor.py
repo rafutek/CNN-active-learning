@@ -103,9 +103,8 @@ class CIFAR100Extractor(DataExtractor):
         for filename in filenames:
             filepath = self.data_dir + filename
             pool_dic = self.unpickle(filepath)
-            print(pool_dic.keys())
             data = pool_dic['data']
-            labels = pool_dic['coarse_labels'] # ERR: il faut voir quels labels on utilise
+            labels = pool_dic['coarse_labels']
             if not init:
                 init = True
                 pool_samples = np.array(data)
