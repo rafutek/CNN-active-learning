@@ -1,9 +1,9 @@
 from models.VggNet import VggNet
 from models.ResNet import ResNet
 from models.AlexNet import AlexNet
-from dataExtractor import CIFAR10Extractor, CIFAR100Extractor 
+from dataExtractor import CIFAR10Extractor, CIFAR100Extractor, UrbanSoundExtractor 
 from dataManager import DataManager
-from selector import RandomSelector, UncertaintySelector, MarginSamplingSelector
+from selector import RandomSelector, LeastConfidenceSelector, MarginSamplingSelector
 from netTrainer import optimizer_setup, NetTrainer
 import numpy as np
 from torch.optim import SGD 
@@ -58,7 +58,7 @@ def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:i
     model = model(num_classes=len(data.get_label_names()))
 
     # First index samples to train
-    idx_labeled_samples = np.arange(k)    
+    train_idx = np.arange(k)    
     
     # List that will contain the test accuracy of each training
     accuracies = []
@@ -68,7 +68,7 @@ def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:i
 
         # Set data loaders depending on training samples
         dataManager = DataManager(data=data, \
-            idx_labeled_samples=idx_labeled_samples, \
+            train_idx=train_idx, \
             batch_size=batch_size)
 
         # Set the network trainer and launch the training
@@ -83,8 +83,8 @@ def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:i
         # Select k samples depending on the selection method
         # and add them to the training samples
         add_to_train_idx = netTrainer.evaluate_on_validation_set(k)
-        idx_labeled_samples = np.concatenate((idx_labeled_samples, add_to_train_idx))
-        print("Added the selected samples to the new training set")
+        train_idx = np.concatenate((train_idx, add_to_train_idx))
+        print("Selected next training set indexes")
 
         # Compute the accuracy on the test set and save it
         accuracy = netTrainer.evaluate_on_test_set()
@@ -120,8 +120,8 @@ def getData(dataset:str):
         return CIFAR10Extractor()
     elif dataset == "cifar100":
         return CIFAR100Extractor()
-    elif dataset == "audioset":
-        return None
+    elif dataset == "urbansound":
+        return UrbanSoundExtractor()
 
 def getSelectionMethod(method):
     """
@@ -134,9 +134,9 @@ def getSelectionMethod(method):
     """
     if method == "random":
         return RandomSelector
-    elif method == "uncertainty_sampling":
-        return UncertaintySelector
-    elif method == "margin_sampling":
+    elif method == "least_confidence":
+        return LeastConfidenceSelector
+    elif method == "margin":
         return MarginSamplingSelector
     elif method == "entropy_sampling":
         return EntropySamplingSelector
