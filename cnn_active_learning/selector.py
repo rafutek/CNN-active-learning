@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.stats import entropy
 class Selector(object):
     """
     Base of a selection method classes
@@ -128,10 +128,11 @@ class EntropySamplingSelector(Selector):
         # Sort the class probabilities of each sample
         sorted_probas = np.sort(self.outputs)
         ent = []
-        for t in range(len(self.outputs)):
-            ent[t] = entropy(self.outputs[t], base=2)
-
-
+        for t in range(len(self.outputs)-1):
+            print("1111111111111111111111111111111111")
+            e = entropy(self.outputs[t])
+            ent.append(e)
+        self.parameters = ent
 
     def order_val_idx(self):
         """
@@ -140,11 +141,15 @@ class EntropySamplingSelector(Selector):
         """
         # Create an array containing index
         # and entropy of each sample
-        ent_with_idx = np.array([self.val_idx, ent])
-
+        ent_with_idx = np.array([self.val_idx, self.parameters])
+        print(ent_with_idx.shape)
         # sort by entropy and get corresponding indexes
-        sort_idx = ent_with_idx[1, :].argsort()
-        self.sample_idx = ent_with_idx[0, sort_idx]
+        seq = self.parameters
+        sort_idx = sorted(range(len(seq)), key=seq.__getitem__)
+
+        self.sample_idx = np.array(sort_idx)
 
     def get_k_idx(self, k):
         return self.sample_idx[:k].astype(int)
+
+
