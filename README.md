@@ -22,3 +22,7 @@ Open a terminal, and:
 - `python experiment.py -h` to display the help
 
 Read the [wiki](https://github.com/rafutek/CNN-active-learning/wiki) for more informations
+
+---
+
+Special thanks to our professor [Pierre-Marc Jodoin](http://info.usherbrooke.ca/pmjodoin/) for its teaching, without him this project would not exist.
