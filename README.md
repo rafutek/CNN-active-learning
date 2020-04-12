@@ -26,7 +26,7 @@ Open a terminal, and:
 - **Default experiment**
 
   Launch the experiment with default parameters:
-  ``` python
+  ``` sh
   python experiment.py
   ```
   Default main parameters are:
@@ -42,7 +42,7 @@ Open a terminal, and:
 - **Experiment several active learning methods**
 
   Launch the experiment with margin and entropy sampling:
-  ``` python
+  ``` sh
   python experiment.py --methods "margin,entropy"
   ```
   Main parameters are now:
@@ -58,7 +58,7 @@ Open a terminal, and:
 - **Experiment several active learning methods and models**
 
   Launch the experiment with margin and entropy sampling on AlexNet and ResNet:
-  ``` python
+  ``` sh
   python experiment.py --methods "margin,entropy" --models "AlexNet,ResNet"
   ```
   Main parameters are now:
@@ -74,7 +74,7 @@ Open a terminal, and:
 - **Experiment several active learning methods, models, and numbers of samples to add to next training set**
 
   Launch the experiment with margin and entropy sampling on AlexNet and ResNet, with k=100 and k=30:
-  ``` python
+  ``` sh
   python experiment.py --methods "margin,entropy" --models "AlexNet,ResNet" --Ks "100,30"
   ```
   Main parameters are now:
