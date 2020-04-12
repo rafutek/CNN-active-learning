@@ -13,7 +13,7 @@ Therefore you can play with the results after, without relaunching all the exper
 **Image datasets**: CIFAR10 and CIFAR100.
 
 ***
-### How can to use this code?
+### How to use this code?
 
 Open a terminal, and:
 - `git clone https://github.com/rafutek/CNN-active-learning.git`
