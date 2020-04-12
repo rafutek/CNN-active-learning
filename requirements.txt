@@ -1,0 +1,5 @@
+curl
+torch
+torchvision
+matplotlib
+tqdm

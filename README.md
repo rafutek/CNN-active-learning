@@ -1,21 +1,21 @@
 # CNN Active Learning
-[![Build Status](https://travis-ci.com/rafutek/CNN-active-learning.svg?branch=master)](https://travis-ci.com/rafutek/CNN-active-learning)
 
-University project where we had to implement **3 active learning methods**: uncertainty sampling, tree of space versions, and reduction of the model generalization error.
+This code allows to study active learning methods on several convolutional neural networks, with diferent image datasets, and other parameters, at once.
+At the end of the experiment it shows the results in one or several plots depending on user arguments, and save them.
+Therefore you can play with the results after, without relaunching all the experiment, that can be pretty long.
 
-As our course was about advanced neural networks, we chose to implement relatively known **convolutional neural networks (CNN)**. Wich are VGGnet, ResNeXt and SENet.
+**Active learning methods**: least confidence sampling, margin sampling, and entropy sampling.
 
-We needed also some data to process, so we took **2 image datasets**, CIFAR10 and imageNet, and **1 audio dataset**, audioSet.
+**Convolutional Neural Networks**: VggNet, ResNet and AlexNet.
 
-This study is done in **Python** with **pyTorch** library.
-
-Please, take a look at the [wiki](https://github.com/rafutek/CNN-active-learning/wiki) for more details.
+**Image datasets**: CIFAR10 and CIFAR100.
 
 ***
-### Install
+### How can to use this code?
 
-- Open a terminal and clone the repository
-- Go into the downloaded folder
-- Install the required packages with `pip install -r requirements_dev.txt`
-    
-
+Open a terminal, and:
+- `git clone https://github.com/rafutek/CNN-active-learning.git`
+- `cd CNN-active-learning`
+- `pip install -r requirements.txt`
+- `cd code`
+- `python experiment.py -h` to display the help
