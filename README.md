@@ -23,7 +23,7 @@ Open a terminal, and:
 
 ## Examples
 
-- Default experiment
+- **Default experiment**
 
   Launch the experiment with default parameters:
   ``` python
@@ -39,7 +39,7 @@ Open a terminal, and:
    
    Therefore, you will have only one result.
   
-- Experiment several active learning methods
+- **Experiment several active learning methods**
 
   Launch the experiment with margin and entropy sampling:
   ``` python
@@ -55,7 +55,7 @@ Open a terminal, and:
    
    This will launch 2 active learnings, one per method, so the final plot will contain 2 results.
    
-- Experiment several active learning methods and models
+- **Experiment several active learning methods and models**
 
   Launch the experiment with margin and entropy sampling on AlexNet and ResNet:
   ``` python
@@ -71,7 +71,7 @@ Open a terminal, and:
    
    This will launch 4 active learnings, one per method and model.
    
-- Experiment several active learning methods, models, and numbers of samples to add to next training set
+- **Experiment several active learning methods, models, and numbers of samples to add to next training set**
 
   Launch the experiment with margin and entropy sampling on AlexNet and ResNet, with k=100 and k=30:
   ``` python
