@@ -9,7 +9,7 @@ import numpy as np
 from torch.optim import SGD 
 import torch.nn as nn
 
-def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:int,
+def active_learning(network:str, dataset:str, pool_length:int, method:str, k:str, num_trainings:int,
                     batch_size:int, num_epochs:int, learning_rate:float, use_cuda:bool):
     """
     Function that execute an active learning
@@ -42,7 +42,7 @@ def active_learning(network:str, dataset:str, method:str, k:str, num_trainings:i
     )
 
     model = getModel(network)
-    data = getData(dataset)
+    data = getData(dataset, pool_length)
     selection_method = getSelectionMethod(method)
     k = int(k)
 
@@ -107,7 +107,7 @@ def getModel(model:str):
     elif model == "AlexNet":
         return AlexNet
 
-def getData(dataset:str):
+def getData(dataset:str, pool_length):
     """
     Function that download the wanted dataset
     if not already done and return the data object
@@ -117,11 +117,11 @@ def getData(dataset:str):
         The data object initialized
     """
     if dataset == "cifar10":
-        return CIFAR10Extractor()
+        return CIFAR10Extractor(pool_length)
     elif dataset == "cifar100":
-        return CIFAR100Extractor()
+        return CIFAR100Extractor(pool_length)
     elif dataset == "urbansound":
-        return UrbanSoundExtractor()
+        return UrbanSoundExtractor(pool_length)
 
 def getSelectionMethod(method):
     """

@@ -27,6 +27,8 @@ def argument_parser(script_name, model_choices, dataset_choices, method_choices)
     parser.add_argument('--datasets', type=str, default="cifar10",
             help="set the list of datasets (ex: 'cifar10,cifar100')."
                 "Possible datasets: "+str(dataset_choices))
+    parser.add_argument('--pool-length', type=int, default=None,
+            help='set the length of the pool set (train + validation)')
     parser.add_argument('--methods', type=str, default="least_confidence",
             help="set the list of active learning selection methods "
                 "(ex: 'random,margin')."
@@ -112,6 +114,7 @@ if __name__ == "__main__":
     Ks = check_list_arg(args.Ks)
     order = check_full_list_arg(args.order,order_choices)
 
+    pool_length = args.pool_length
     split_level = args.split_level
     batch_size = args.batch_size
     num_trainings = args.num_trainings
@@ -136,7 +139,7 @@ if __name__ == "__main__":
                         if k not in dic_results[model][dataset][method]:
                             dic_results[model][dataset][method][k]  = {}
     
-                        accuracies = active_learning(model, dataset,
+                        accuracies = active_learning(model, dataset, pool_length,
                                 method, k, num_trainings, batch_size,
                                 num_epochs, learning_rate, use_cuda)
                         

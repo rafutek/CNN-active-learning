@@ -15,19 +15,19 @@ class DataExtractor(object):
     """
     Base class for data downloading and extraction in pool and test set
     """
-    def __init__(self):
+    def __init__(self, pool_length:int):
         """
         Constructor that download the dataset
         and extract the pool set, the test set and the label names
         """
         self.download()
-        self.pool_samples, self.pool_labels = self.extract_pool_data()
+        self.pool_samples, self.pool_labels = self.extract_pool_data(pool_length)
         self.test_samples, self.test_labels = self.extract_test_samples()       
         self.label_names = self.extract_label_names()
 
     def download(self):
         raise NotImplementedError
-    def extract_pool_data(self):
+    def extract_pool_data(self,pool_length:int):
         raise NotImplementedError
     def extract_test_samples(self):
         raise NotImplementedError
@@ -86,7 +86,7 @@ class CIFAR10Extractor(DataExtractor):
         """
         subprocess.call(['./scripts/dl-CIFAR10.sh'])
    
-    def extract_pool_data(self):
+    def extract_pool_data(self, pool_length:int):
         """
         Function to load the CIFAR10 data from files
         in order to create the pool set
@@ -107,6 +107,10 @@ class CIFAR10Extractor(DataExtractor):
             else:
                 pool_samples = np.append(pool_samples, data, axis=0)
                 pool_labels = np.append(pool_labels, labels)
+        
+        if pool_length is not None:
+            pool_samples = pool_samples[:pool_length]
+            pool_labels = pool_labels[:pool_length]
         
         pool_samples = np.vstack(pool_samples).reshape(-1, 3, 32, 32)
         return pool_samples, pool_labels
@@ -154,7 +158,7 @@ class CIFAR100Extractor(DataExtractor):
         """
         subprocess.call(['./scripts/dl-CIFAR100.sh'])
 
-    def extract_pool_data(self):
+    def extract_pool_data(self, pool_length:int):
         """
         Function to load the CIFAR100 data from files
         in order to create the pool set
@@ -175,6 +179,10 @@ class CIFAR100Extractor(DataExtractor):
             else:
                 pool_samples = np.append(pool_samples, data, axis=0)
                 pool_labels = np.append(pool_labels, labels)
+        
+        if pool_length is not None:
+            pool_samples = pool_samples[:pool_length]
+            pool_labels = pool_labels[:pool_length]
 
         pool_samples = np.vstack(pool_samples).reshape(-1, 3, 32, 32)
         return pool_samples, pool_labels
@@ -221,7 +229,7 @@ class UrbanSoundExtractor(DataExtractor):
         """
         subprocess.call(['./scripts/dl-audioset.sh'])
 
-    def extract_pool_data(self):
+    def extract_pool_data(self,pool_length:int):
         raise NotImplementedError
 
     def extract_test_samples(self):
