@@ -129,7 +129,6 @@ class EntropySamplingSelector(Selector):
         sorted_probas = np.sort(self.outputs)
         ent = []
         for t in range(len(self.outputs)-1):
-            print("1111111111111111111111111111111111")
             e = entropy(self.outputs[t])
             ent.append(e)
         self.parameters = ent
@@ -142,7 +141,6 @@ class EntropySamplingSelector(Selector):
         # Create an array containing index
         # and entropy of each sample
         ent_with_idx = np.array([self.val_idx, self.parameters])
-        print(ent_with_idx.shape)
         # sort by entropy and get corresponding indexes
         seq = self.parameters
         sort_idx = sorted(range(len(seq)), key=seq.__getitem__)
