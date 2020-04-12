@@ -1,7 +1,9 @@
 # CNN Active Learning
 
 This code allows to study active learning methods on several convolutional neural networks, with diferent image datasets, and other parameters, at once.
+
 At the end of the experiment it shows the results in one or several plots depending on user arguments, and save them.
+
 Therefore you can play with the results after, without relaunching all the experiment, that can be pretty long.
 
 **Active learning methods**: least confidence sampling, margin sampling, and entropy sampling.
