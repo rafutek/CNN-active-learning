@@ -12,8 +12,7 @@ Therefore you can play with the results after, without relaunching all the exper
 
 **Image datasets**: CIFAR10 and CIFAR100.
 
-***
-### How can to use this code?
+## How to use this code?
 
 Open a terminal, and:
 - `git clone https://github.com/rafutek/CNN-active-learning.git`
@@ -21,3 +20,9 @@ Open a terminal, and:
 - `pip install -r requirements.txt`
 - `cd code`
 - `python experiment.py -h` to display the help
+
+Read the [wiki](https://github.com/rafutek/CNN-active-learning/wiki) for more informations
+
+---
+
+Special thanks to our professor [Pierre-Marc Jodoin](http://info.usherbrooke.ca/pmjodoin/) for its teaching, without him this project would not exist.
